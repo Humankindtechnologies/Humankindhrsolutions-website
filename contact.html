@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — HumanKind HR Solutions</title>
+  <meta name="description" content="Get in touch with HumanKind HR Solutions. Tell us what you're working through and we'll get back to you within one business day." />
+  <link rel="stylesheet" href="styles.css?v=33" />
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header" id="header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand" aria-label="HumanKind HR Solutions — home">
+        <img src="images/logos/HK_LOGO.png" alt="HumanKind HR Solutions" class="brand-logo" />
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <ul class="nav-list">
+          <li class="has-dropdown">
+            <a href="index.html#services" class="nav-link">Work With Us</a>
+            <div class="dropdown">
+              <a href="dedicated-hr.html"><span class="dd-icon" data-icon="support"></span><span><strong>Dedicated HR</strong><em>Your on-call HR partner</em></span></a>
+              <a href="hr-systems.html"><span class="dd-icon" data-icon="chart"></span><span><strong>HR Systems</strong><em>Data, analytics &amp; tooling</em></span></a>
+              <a href="employee-benefits.html"><span class="dd-icon" data-icon="shield"></span><span><strong>Employee Benefits</strong><em>Plans that actually fit</em></span></a>
+              <a href="training-wellness.html"><span class="dd-icon" data-icon="sprout"></span><span><strong>Training &amp; Wellness</strong><em>Healthier, stronger teams</em></span></a>
+              <a href="mypersonalhealthplan.html"><span class="dd-icon" data-icon="heartpulse"></span><span><strong>MyPersonalHealthPlan</strong><em>Individual &amp; family coverage</em></span></a>
+            </div>
+          </li>
+          <li><a href="about.html" class="nav-link">About Us</a></li>
+          <li><a href="contact.html" class="nav-link active">Contact</a></li>
+        </ul>
+      </nav>
+      <a href="contact.html" class="btn btn-primary header-cta">Let's Talk</a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <!-- ============ MOBILE MENU ============ -->
+  <div class="mobile-menu" id="mobileMenu">
+    <nav aria-label="Mobile">
+      <span class="mm-label">Work With Us</span>
+      <a href="dedicated-hr.html">Dedicated HR</a>
+      <a href="hr-systems.html">HR Systems</a>
+      <a href="employee-benefits.html">Employee Benefits</a>
+      <a href="training-wellness.html">Training &amp; Wellness</a>
+      <a href="mypersonalhealthplan.html">MyPersonalHealthPlan</a>
+      <span class="mm-label">Company</span>
+      <a href="about.html">About Us</a>
+      <a href="contact.html">Contact</a>
+      <a href="contact.html" class="btn btn-primary mm-cta">Let's Talk</a>
+    </nav>
+  </div>
+
+  <main>
+    <!-- PAGE HERO + CONTACT FORM -->
+    <section class="page-hero page-hero--full page-hero--contact" id="contact">
+      <div class="hero-photo" style="background-image:url('images/backgrounds/hero_contact.jpg'); --bg-pos:55% 50%; --bg-pos-m:60% 50%"></div>
+      <div class="container contact-hero-grid">
+
+        <!-- LEFT: copy + contact info -->
+        <div class="contact-hero-copy">
+          <div class="breadcrumb"><a href="index.html">Home</a><span>/</span>Contact</div>
+          <div class="page-icon" data-icon="mail"></div>
+          <h1>Let's talk about your people</h1>
+          <p>Tell us what you're working through. We'll get back to you within one business day.</p>
+          <ul class="contact-list">
+            <li>
+              <span class="ci-icon" data-icon="mail"></span>
+              <div><span class="ci-label">Email</span><a href="mailto:info@humankindhrs.com">info@humankindhrs.com</a></div>
+            </li>
+            <li>
+              <span class="ci-icon" data-icon="phone"></span>
+              <div><span class="ci-label">Phone</span><a href="tel:+18884762673">+1 888-476-2673</a></div>
+            </li>
+          </ul>
+          <div class="socials">
+            <a href="https://www.linkedin.com/company/humankind-hr-solutions-inc" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" data-icon="linkedin"></a>
+            <a href="https://www.facebook.com/hrocoreinc" aria-label="Facebook" data-icon="facebook"></a>
+            <a href="https://www.instagram.com/humankindhrsolutions/" aria-label="Instagram" data-icon="instagram"></a>
+          </div>
+        </div>
+
+        <!-- RIGHT: frosted glass form -->
+        <div class="contact-glass-card">
+          <h3>Send us a message</h3>
+          <form onsubmit="return handleSubmit(event)">
+            <div class="field-row">
+              <label>Name<input type="text" name="name" placeholder="Jane Doe" required /></label>
+              <label>Email<input type="email" name="email" placeholder="jane@company.com" required /></label>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-family:'Plus Jakarta Sans';font-weight:600;font-size:.85rem;color:rgba(255,255,255,.85);">Company<input type="text" name="company" placeholder="Company name" /></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-family:'Plus Jakarta Sans';font-weight:600;font-size:.85rem;color:rgba(255,255,255,.85);">How can we help?<textarea name="message" rows="4" placeholder="Tell us what you're working on..." required></textarea></label>
+            <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+            <p class="form-note" id="formNote" hidden>Thanks! We'll be in touch within one business day.</p>
+          </form>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <img src="images/logos/HK_LOGO.png" alt="HumanKind HR Solutions" class="footer-logo" />
+        <p>From intention to infrastructure. People-first HR for organizations that want to grow the right way.</p>
+        <div class="socials"><a href="https://www.linkedin.com/company/humankind-hr-solutions-inc" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" data-icon="linkedin"></a><a href="https://www.facebook.com/hrocoreinc" aria-label="Facebook" data-icon="facebook"></a><a href="https://www.instagram.com/humankindhrsolutions/" aria-label="Instagram" data-icon="instagram"></a></div>
+      </div>
+      <div class="footer-col"><h4>Explore</h4><a href="index.html">Home</a><a href="about.html">About</a><a href="about.html#team">Our Team</a><a href="contact.html">Contact</a></div>
+      <div class="footer-col"><h4>Services</h4><a href="dedicated-hr.html">Dedicated HR</a><a href="hr-systems.html">HR Systems</a><a href="employee-benefits.html">Employee Benefits</a><a href="training-wellness.html">Training &amp; Wellness</a><a href="mypersonalhealthplan.html">MyPersonalHealthPlan</a></div>
+      <div class="footer-col footer-news"><h4>Newsletter</h4><p>HR insights, occasionally. No spam.</p><form class="news-form" onsubmit="return false"><input type="email" placeholder="Enter your email" aria-label="Email address" /><button aria-label="Subscribe">→</button></form></div>
+    </div>
+    <div class="container footer-bottom"><span>© <span id="year"></span> HumanKind HR Solutions. All rights reserved.</span><a href="privacy-policy.html">Privacy Policy</a></div>
+  </footer>
+
+  <script src="script.js?v=12"></script>
+</body>
+</html>
