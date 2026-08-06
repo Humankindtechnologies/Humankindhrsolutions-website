@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HR Systems — HumanKind HR Solutions</title>
   <meta name="description" content="Powerful HR data, analytics, and tooling. We enable organizational transformation and effective hybrid workplaces with modern HR systems." />
-  <link rel="stylesheet" href="styles.css?v=35" />
+  <link rel="stylesheet" href="styles.css?v=36" />
 </head>
 <body>
 
@@ -102,46 +102,117 @@
             <span class="hris-dot hris-dot--green"></span>
           </div>
           <div class="hris-mock-body">
-            <nav class="hris-mock-nav">
-              <span class="hris-nav-item active"><b data-icon="chart"></b>Dashboard</span>
-              <span class="hris-nav-item"><b data-icon="activity"></b>Activity</span>
-              <span class="hris-nav-item"><b data-icon="award"></b>Kudos</span>
-              <span class="hris-nav-item"><b data-icon="users"></b>Employees</span>
-              <span class="hris-nav-item"><b data-icon="doc"></b>Documents</span>
-              <span class="hris-nav-item"><b data-icon="refresh"></b>Processes</span>
-              <span class="hris-nav-item"><b data-icon="columns"></b>Forms</span>
-              <span class="hris-nav-item"><b data-icon="gear"></b>Settings</span>
+            <nav class="hris-mock-nav" id="hrisNav">
+              <button class="hris-nav-item active" data-screen="0"><b data-icon="chart"></b>Dashboard</button>
+              <button class="hris-nav-item" data-screen="1"><b data-icon="clock"></b>Time Off</button>
+              <button class="hris-nav-item" data-screen="2"><b data-icon="doc"></b>Documents</button>
+              <button class="hris-nav-item" data-screen="3"><b data-icon="brain"></b>AI Assistant</button>
+              <button class="hris-nav-item" data-screen="4"><b data-icon="columns"></b>Reports</button>
+              <button class="hris-nav-item" data-screen="5"><b data-icon="award"></b>Kudos</button>
             </nav>
-            <div class="hris-mock-main">
-              <h3>Dashboard</h3>
-              <div class="hris-mock-cards">
-                <div class="hris-mock-card">
-                  <h4>My Tasks</h4>
-                  <ul class="hris-tasks">
-                    <li><span class="hris-check"></span>Complete onboarding form</li>
-                    <li><span class="hris-check done"></span>Sign handbook acknowledgement</li>
-                    <li><span class="hris-check"></span>Review Q3 goals</li>
-                  </ul>
+
+            <div class="hris-stage" id="hrisStage">
+              <!-- 1 · DASHBOARD -->
+              <div class="hris-screen active">
+                <h3>Dashboard</h3>
+                <div class="hris-mock-cards">
+                  <div class="hris-mock-card">
+                    <h4>My Tasks</h4>
+                    <ul class="hris-tasks">
+                      <li><span class="hris-check"></span>Complete onboarding form</li>
+                      <li><span class="hris-check done"></span>Sign handbook acknowledgement</li>
+                      <li><span class="hris-check"></span>Review Q3 goals</li>
+                    </ul>
+                  </div>
+                  <div class="hris-mock-card">
+                    <h4>Notice Board</h4>
+                    <ul class="hris-notice">
+                      <li>Office closed July 1st</li>
+                      <li>Benefits enrollment opens next week</li>
+                    </ul>
+                  </div>
+                  <div class="hris-mock-card">
+                    <h4>Recent Activity</h4>
+                    <ul class="hris-notice">
+                      <li>Alex requested time off</li>
+                      <li>Priya signed a document</li>
+                      <li>Jordan joined the team</li>
+                    </ul>
+                  </div>
                 </div>
-                <div class="hris-mock-card">
-                  <h4>Notice Board</h4>
-                  <ul class="hris-notice">
-                    <li>Office closed July 1st</li>
-                    <li>Benefits enrollment opens next week</li>
-                  </ul>
+              </div>
+
+              <!-- 2 · TIME OFF -->
+              <div class="hris-screen">
+                <h3>Time Off</h3>
+                <div class="hris-balances">
+                  <div class="hris-bal"><b>12.5</b><span>Vacation days</span></div>
+                  <div class="hris-bal"><b>4.0</b><span>Sick days</span></div>
+                  <div class="hris-bal"><b>2.0</b><span>Personal days</span></div>
                 </div>
-                <div class="hris-mock-card">
-                  <h4>Recent Activity</h4>
-                  <ul class="hris-notice">
-                    <li>Alex requested time off</li>
-                    <li>Priya signed a document</li>
-                    <li>Jordan joined the team</li>
-                  </ul>
+                <div class="hris-reqs">
+                  <div class="hris-req"><span class="hris-av">AM</span><div class="hris-who">Alex Morgan<small>Vacation · Aug 4 – 8</small></div><span class="hris-pill good">Approved</span></div>
+                  <div class="hris-req"><span class="hris-av">PR</span><div class="hris-who">Priya Raman<small>Sick day · Jul 29</small></div><span class="hris-pill warn">Pending</span></div>
+                  <div class="hris-req"><span class="hris-av">JL</span><div class="hris-who">Jordan Lee<small>Personal · Aug 15</small></div><span class="hris-pill warn">Pending</span></div>
+                </div>
+              </div>
+
+              <!-- 3 · DOCUMENTS -->
+              <div class="hris-screen">
+                <h3>Documents</h3>
+                <div class="hris-fields">
+                  <div class="hris-field"><label>Document name</label><div class="hris-input">Employment agreement — A. Morgan</div></div>
+                  <div class="hris-field"><label>Category</label><div class="hris-input">Contracts <i>▾</i></div></div>
+                  <div class="hris-field"><label>Assign to</label><div class="hris-input">Alex Morgan <i>▾</i></div></div>
+                  <div class="hris-field"><label>Signature required</label><div class="hris-input">Yes — e-signature <i>▾</i></div></div>
+                </div>
+                <div class="hris-upload">Upload &amp; send for signature</div>
+              </div>
+
+              <!-- 4 · AI ASSISTANT -->
+              <div class="hris-screen">
+                <h3>AI Assistant</h3>
+                <div class="hris-chat">
+                  <span class="hris-bubble user">How many vacation days does Priya have left?</span>
+                  <span class="hris-bubble ai">Priya Raman has <strong>9.5 vacation days</strong> remaining for 2026.<em>View her profile →</em></span>
+                  <span class="hris-bubble user">Draft a return-to-work letter for her.</span>
+                  <span class="hris-bubble ai">Drafted from your policy template — ready for review.<em>Open draft →</em></span>
+                </div>
+              </div>
+
+              <!-- 5 · REPORTS -->
+              <div class="hris-screen">
+                <h3>Reports</h3>
+                <table class="hris-table">
+                  <thead><tr><th>Employee</th><th>Regular</th><th>Overtime</th><th>Total</th></tr></thead>
+                  <tbody>
+                    <tr><td>Alex Morgan</td><td>72.0</td><td>3.5</td><td>75.5</td></tr>
+                    <tr><td>Priya Raman</td><td>80.0</td><td>0.0</td><td>80.0</td></tr>
+                    <tr><td>Jordan Lee</td><td>64.0</td><td>6.0</td><td>70.0</td></tr>
+                    <tr><td>Sam Chen</td><td>78.5</td><td>1.5</td><td>80.0</td></tr>
+                  </tbody>
+                </table>
+                <div class="hris-total"><span>Pay period total</span><span>305.5 hrs</span></div>
+              </div>
+
+              <!-- 6 · KUDOS -->
+              <div class="hris-screen">
+                <h3>Kudos</h3>
+                <div class="hris-kudos">
+                  <div class="hris-kudo">
+                    <span class="hris-av">JL</span>
+                    <div><b>Jordan Lee</b> recognized <b>Priya Raman</b><p>Stayed late to get benefits enrollment out the door — total lifesaver.</p><span class="hris-tag">★ Above &amp; beyond</span></div>
+                  </div>
+                  <div class="hris-kudo">
+                    <span class="hris-av">AM</span>
+                    <div><b>Alex Morgan</b> recognized <b>Sam Chen</b><p>Onboarded two new hires this week without dropping a thing.</p><span class="hris-tag">★ Team player</span></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        <div class="hris-dots" id="hrisDots" role="tablist" aria-label="Dashboard screens"></div>
         <p class="svc-subhead">The right tool for your team</p>
         <div class="feature-grid">
           <div class="feature-card"><div class="f-icon" data-icon="brain"></div><h3>Humankind HRIS</h3><p>Human-focused, AI-powered tools that put everyday HR work at your team's fingertips.</p></div>
@@ -190,7 +261,7 @@
       <div class="footer-brand">
         <img src="images/logos/HK_LOGO.png" alt="HumanKind HR Solutions" class="footer-logo" />
         <p>From intention to infrastructure. People-first HR for organizations that want to grow the right way.</p>
-        <div class="socials"><a href="https://www.linkedin.com/company/humankind-hr-solutions-inc" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" data-icon="linkedin"></a><a href="https://www.facebook.com/hrocoreinc" aria-label="Facebook" data-icon="facebook"></a><a href="https://www.instagram.com/humankindhrsolutions/" aria-label="Instagram" data-icon="instagram"></a></div>
+        <div class="socials"><a href="https://www.linkedin.com/company/humankind-hr-solutions-inc" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" data-icon="linkedin"></a><a href="https://www.facebook.com/hrocoreinc" target="_blank" rel="noopener noreferrer" aria-label="Facebook" data-icon="facebook"></a><a href="https://www.instagram.com/humankindhrsolutions/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" data-icon="instagram"></a></div>
       </div>
       <div class="footer-col"><h4>Explore</h4><a href="index.html">Home</a><a href="about.html">About</a><a href="about.html#team">Our Team</a><a href="contact.html">Contact</a></div>
       <div class="footer-col"><h4>Services</h4><a href="dedicated-hr.html">Dedicated HR</a><a href="hr-systems.html">HR Systems</a><a href="employee-benefits.html">Employee Benefits</a><a href="training-wellness.html">Training &amp; Wellness</a><a href="mypersonalhealthplan.html">MyPersonalHealthPlan</a></div>
@@ -199,6 +270,6 @@
     <div class="container footer-bottom"><span>© <span id="year"></span> HumanKind HR Solutions. All rights reserved.</span><a href="privacy-policy.html">Privacy Policy</a></div>
   </footer>
 
-  <script src="script.js?v=12"></script>
+  <script src="script.js?v=13"></script>
 </body>
 </html>

@@ -137,12 +137,49 @@ function injectIcons(root) {
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 })();
 
-/* ---- Demo contact form ---- */
+/* ---- Contact form → /api/send-contact ---- */
 function handleSubmit(e) {
   e.preventDefault();
+  const form = e.target;
   const note = document.getElementById('formNote');
-  if (note) note.hidden = false;
-  e.target.querySelector('button[type="submit"]').textContent = 'Message Sent ✓';
+  const btn = form.querySelector('button[type="submit"]');
+  const data = new FormData(form);
+
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  if (note) note.hidden = true;
+
+  fetch('/api/send-contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: (data.get('name') || '').trim(),
+      email: (data.get('email') || '').trim(),
+      company: (data.get('company') || '').trim(),
+      message: (data.get('message') || '').trim(),
+    }),
+  })
+    .then((res) => { if (!res.ok) throw new Error('Request failed'); return res.json().catch(() => ({})); })
+    .then(() => {
+      if (note) {
+        note.textContent = "Thanks! We'll be in touch within one business day.";
+        note.style.color = '';
+        note.hidden = false;
+      }
+      btn.textContent = 'Message Sent ✓';
+      form.reset();
+    })
+    .catch(() => {
+      if (note) {
+        note.innerHTML = "Sorry — that didn't send. Please email us directly at <strong>info@humankindhrsolutions.com</strong>.";
+        note.style.color = '#ffb4b4';
+        note.hidden = false;
+      }
+      btn.disabled = false;
+      btn.textContent = original;
+    });
+
   return false;
 }
 
@@ -810,4 +847,43 @@ function handleSubmit(e) {
   const d0 = slides[0].dataset;
   typewrite(d0.svcWord || '', () => showTagline(d0.svcTagline || ''));
   restart();
+})();
+
+/* ============================================================
+   HRIS dashboard carousel — HR Systems page
+   ============================================================ */
+(function () {
+  const stage = document.getElementById('hrisStage');
+  const nav = document.getElementById('hrisNav');
+  const dotsWrap = document.getElementById('hrisDots');
+  if (!stage || !nav || !dotsWrap) return;
+
+  const screens = [...stage.querySelectorAll('.hris-screen')];
+  const navItems = [...nav.querySelectorAll('.hris-nav-item')];
+  const DELAY = 6000;
+  let idx = 0, timer = null;
+
+  screens.forEach((_, n) => {
+    const d = document.createElement('button');
+    d.className = 'hris-cdot' + (n === 0 ? ' active' : '');
+    d.setAttribute('aria-label', navItems[n] ? navItems[n].textContent.trim() : 'Screen ' + (n + 1));
+    d.addEventListener('click', () => go(n, true));
+    dotsWrap.appendChild(d);
+  });
+  const dots = [...dotsWrap.children];
+
+  function apply(n) {
+    idx = n;
+    screens.forEach((el, k) => el.classList.toggle('active', k === n));
+    navItems.forEach((el, k) => el.classList.toggle('active', k === n));
+    dots.forEach((el, k) => el.classList.toggle('active', k === n));
+  }
+  function next() { apply((idx + 1) % screens.length); }
+  function start() { clearInterval(timer); timer = setInterval(next, DELAY); }
+  function go(n, manual) { apply(n); if (manual) start(); }
+
+  navItems.forEach((btn, n) => btn.addEventListener('click', () => go(n, true)));
+  stage.addEventListener('mouseenter', () => clearInterval(timer));
+  stage.addEventListener('mouseleave', start);
+  start();
 })();
