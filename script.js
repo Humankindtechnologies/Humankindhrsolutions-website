@@ -694,6 +694,14 @@ function handleSubmit(e) {
   function applyStep(i) {
     steps.forEach((el, idx) => el.classList.toggle('active', idx === i));
     cards.forEach((el, idx) => el.classList.toggle('active', idx === i));
+
+    // On mobile the rail is a horizontal scroller — keep the active step in
+    // view so the sequence advances on its own instead of needing a swipe.
+    if (rail.scrollWidth > rail.clientWidth + 4) {
+      const el = steps[i];
+      const target = el.offsetLeft - (rail.clientWidth - el.offsetWidth) / 2;
+      rail.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+    }
   }
 
   function setProgress(duration) {

@@ -189,7 +189,7 @@ img { display: block; max-width: 100%; }
 @media (max-width: 760px) {
   .hero-overlay {
     background:
-      linear-gradient(180deg, rgba(8,18,35,.78) 0%, rgba(8,18,35,.42) 40%, rgba(8,18,35,.18) 64%, rgba(8,18,35,.30) 100%);
+      linear-gradient(180deg, rgba(8,18,35,.74) 0%, rgba(8,18,35,.56) 38%, rgba(8,18,35,.54) 70%, rgba(8,18,35,.64) 100%);
   }
 }
 .hero-content { position: relative; z-index: 2; max-width: var(--maxw); padding-top: 80px; }
@@ -535,8 +535,10 @@ img { display: block; max-width: 100%; }
     linear-gradient(90deg, rgba(8,18,35,.80) 0%, rgba(8,18,35,.55) 16%, rgba(8,18,35,.22) 36%, transparent 52%);
 }
 @media (max-width: 760px) {
+  /* phones crop these landscape photos hard, so the text often lands on a
+     bright, busy part of the image — keep the mid-band dark enough to read */
   .page-hero::after {
-    background: linear-gradient(180deg, rgba(8,18,35,.78) 0%, rgba(8,18,35,.42) 40%, rgba(8,18,35,.18) 64%, rgba(8,18,35,.30) 100%);
+    background: linear-gradient(180deg, rgba(8,18,35,.74) 0%, rgba(8,18,35,.56) 38%, rgba(8,18,35,.54) 70%, rgba(8,18,35,.64) 100%);
   }
 }
 /* per-page faded hero photo (falls back to the gradient if the file isn't there yet) */
@@ -954,7 +956,7 @@ img { display: block; max-width: 100%; }
 /* Underwriter co-brand strip */
 .mphp-partner { background: #fff; border-bottom: 1px solid var(--line); padding: 36px 0; }
 .mphp-partner-inner { display: flex; align-items: center; justify-content: center; }
-.mphp-partner-logo { height: 64px; width: auto; }
+.mphp-partner-logo { height: 64px; width: auto; max-width: 100%; object-fit: contain; }
 
 /* Plan cards (image overlay) */
 .mphp-plans { background: var(--sky); }
@@ -1249,12 +1251,11 @@ img { display: block; max-width: 100%; }
 }
 @media (max-width: 860px) {
   .nav, .header-cta { display: none; }
-  .hamburger { display: flex; margin-left: 0; }
+  .hamburger { display: flex; margin-left: auto; }
   /* shrink the wide logo so the theme switch + hamburger fit on phones */
   .header-inner { gap: 12px; }
   .brand-logo { height: 60px; }
   .site-header.scrolled .brand-logo { height: 52px; }
-  .theme-switch { margin-left: auto; }   /* push switch + hamburger together to the right */
   .section { padding: 80px 0; }
   .process-list { grid-template-columns: 1fr; }
   .contact-grid { grid-template-columns: 1fr; gap: 40px; }
@@ -1510,4 +1511,10 @@ img { display: block; max-width: 100%; }
   /* team */
   .team-card h3 { font-size: 1rem; }
   .team-card .role { font-size: .72rem; }
+
+  /* card photos: the fixed desktop heights crop portrait sources brutally
+     once the card is only ~300px wide, so give them more vertical room */
+  .provide-media { height: 250px; }
+  .plan-media { height: 215px; }
+  .mphp-partner-logo { height: auto; width: 100%; max-width: 280px; }
 }
