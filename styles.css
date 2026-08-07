@@ -1324,13 +1324,32 @@ img { display: block; max-width: 100%; }
 .pc-do li::before { content: ""; position: absolute; left: 2px; top: 3px; width: 7px; height: 12px; border: solid var(--blue); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .pc-get p { color: var(--navy); font-size: .92rem; line-height: 1.6; background: var(--blue-soft); border-left: 3px solid var(--blue); border-radius: 8px; padding: 14px 16px; margin: 0; }
 
+/* desktop: a connector line turns the rail into a visible sequence */
+@media (min-width: 861px) {
+  .proc-rail { position: relative; }
+  .proc-rail::before {
+    content: ""; position: absolute; left: 36px; top: 26px; bottom: 26px; width: 2px;
+    background: var(--line); z-index: 0;
+  }
+  .proc-step { z-index: 1; }
+}
+
+/* mobile: accordion — the detail panel slots in under the active step
+   instead of living in a separate horizontally-scrolling rail */
 @media (max-width: 860px) {
-  .proc { grid-template-columns: 1fr; gap: 22px; }
-  .proc-rail { flex-direction: row; gap: 10px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
-  .proc-step { flex: 0 0 auto; min-width: 190px; }
-  .proc-card { padding: 28px 24px; }
+  .proc { grid-template-columns: 1fr; gap: 0; }
+  .proc-rail { flex-direction: column; gap: 12px; overflow: visible; padding-bottom: 0; }
+  .proc-step { flex: initial; min-width: 0; width: 100%; }
+  .proc-stage { display: block; margin: 12px 0; }
+  .proc-card {
+    grid-area: auto; display: none; padding: 26px 22px;
+    opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+    animation: procIn .4s var(--ease);
+  }
+  .proc-card.active { display: block; }
   .pc-cols { grid-template-columns: 1fr; gap: 22px; }
 }
+@keyframes procIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
 /* ============ PROCESS B — Cinematic ============ */
 .proc-b { position: relative; overflow: hidden; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); height: 460px; display: flex; flex-direction: column; }

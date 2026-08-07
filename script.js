@@ -691,18 +691,27 @@ function handleSubmit(e) {
   const steps = [...rail.children];
   const cards = [...stage.children];
 
+  const procWrap = rail.parentElement;
+  const mq = window.matchMedia('(max-width: 860px)');
+
+  /* Below 860px the steps stack and the detail panel is moved directly under
+     whichever step is active, so it reads as an accordion. Above that the
+     panel returns to its own column beside the rail. */
+  function placeStage(i) {
+    if (mq.matches) {
+      if (steps[i].nextElementSibling !== stage) steps[i].after(stage);
+    } else if (stage.parentElement !== procWrap) {
+      procWrap.appendChild(stage);
+    }
+  }
+
   function applyStep(i) {
     steps.forEach((el, idx) => el.classList.toggle('active', idx === i));
     cards.forEach((el, idx) => el.classList.toggle('active', idx === i));
-
-    // On mobile the rail is a horizontal scroller — keep the active step in
-    // view so the sequence advances on its own instead of needing a swipe.
-    if (rail.scrollWidth > rail.clientWidth + 4) {
-      const el = steps[i];
-      const target = el.offsetLeft - (rail.clientWidth - el.offsetWidth) / 2;
-      rail.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
-    }
+    placeStage(i);
   }
+
+  mq.addEventListener('change', () => placeStage(cur));
 
   function setProgress(duration) {
     steps.forEach(el => {
