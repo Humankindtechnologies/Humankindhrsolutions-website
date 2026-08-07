@@ -19,7 +19,6 @@ module.exports = async (req, res) => {
   const html = buildEmail({
     eyebrow: 'New lead',
     title: "Let's Talk request",
-    subtitle: 'Submitted from the Let’s Talk booking modal',
     rows: [
       ['Name', esc(name)],
       ['Email', `<a href="mailto:${esc(email)}" style="color:#0B0B0C;text-decoration:underline;">${esc(email)}</a>`],

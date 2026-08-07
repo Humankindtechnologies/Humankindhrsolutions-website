@@ -94,8 +94,8 @@ function buildEmail({ eyebrow, title, subtitle, rows, message, messageLabel = 'M
             <tr>
               <td style="padding:36px 40px 8px;border-bottom:1px solid ${LINE};">
                 <p style="margin:0 0 10px;color:${FAINT};font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;">${esc(eyebrow)}</p>
-                <h1 style="margin:0 0 8px;color:${INK};font-size:24px;font-weight:800;letter-spacing:-.01em;">${esc(title)}</h1>
-                <p style="margin:0 0 28px;color:${MUTED};font-size:14px;">${esc(subtitle)}</p>
+                <h1 style="margin:0 0 ${subtitle ? '8px' : '28px'};color:${INK};font-size:24px;font-weight:800;letter-spacing:-.01em;">${esc(title)}</h1>
+                ${subtitle ? `<p style="margin:0 0 28px;color:${MUTED};font-size:14px;">${esc(subtitle)}</p>` : ''}
               </td>
             </tr>
 
