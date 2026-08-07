@@ -15,16 +15,19 @@ module.exports = async (req, res) => {
   }
 
   const html = buildEmail({
-    title: 'New contact form message',
-    subtitle: 'Submitted from the Contact page',
+    eyebrow: 'New submission',
+    title: 'Contact form message',
+    subtitle: 'Sent from the Contact page on humankindhrsolutions.com',
     rows: [
       ['Name', esc(name)],
-      ['Email', `<a href="mailto:${esc(email)}" style="color:#2D6BE0;text-decoration:none;">${esc(email)}</a>`],
+      ['Email', `<a href="mailto:${esc(email)}" style="color:#0B0B0C;text-decoration:underline;">${esc(email)}</a>`],
       ['Company', company ? esc(company) : '&mdash;'],
       ['Received', esc(new Date().toLocaleString('en-CA', { timeZone: 'America/Halifax', dateStyle: 'full', timeStyle: 'short' })) + ' (AT)'],
     ],
     message: esc(message),
     messageLabel: 'How can we help?',
+    replyTo: email,
+    replyToName: name,
   });
 
   const result = await sendEmail({

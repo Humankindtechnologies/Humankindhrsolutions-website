@@ -17,17 +17,20 @@ module.exports = async (req, res) => {
   const reachAt = [preferredDay, preferredWindow].filter(Boolean).map(esc).join(' &middot; ') || '&mdash;';
 
   const html = buildEmail({
-    title: "New “Let's Talk” request",
+    eyebrow: 'New lead',
+    title: "Let's Talk request",
     subtitle: 'Submitted from the Let’s Talk booking modal',
     rows: [
       ['Name', esc(name)],
-      ['Email', `<a href="mailto:${esc(email)}" style="color:#2D6BE0;text-decoration:none;">${esc(email)}</a>`],
-      ['Phone', phone ? `<a href="tel:${esc(phone)}" style="color:#2D6BE0;text-decoration:none;">${esc(phone)}</a>` : '&mdash;'],
-      ['Best time to reach them', `<span style="color:#2D6BE0;">${reachAt}</span>`],
+      ['Email', `<a href="mailto:${esc(email)}" style="color:#0B0B0C;text-decoration:underline;">${esc(email)}</a>`],
+      ['Phone', phone ? `<a href="tel:${esc(phone)}" style="color:#0B0B0C;text-decoration:underline;">${esc(phone)}</a>` : '&mdash;'],
+      ['Best time to reach them', reachAt],
       ['Areas of interest', list(areas)],
       ['Specific needs', list(needs)],
       ['Received', esc(new Date().toLocaleString('en-CA', { timeZone: 'America/Halifax', dateStyle: 'full', timeStyle: 'short' })) + ' (AT)'],
     ],
+    replyTo: email,
+    replyToName: name,
   });
 
   const result = await sendEmail({

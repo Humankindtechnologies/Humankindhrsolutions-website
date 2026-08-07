@@ -6,10 +6,16 @@
 //   SENDGRID_FROM_EMAIL — a sender address verified in SendGrid (Single Sender or domain auth)
 
 const TO_EMAIL = 'info@humankindhrsolutions.com';
-const BRAND = '#2D6BE0';
-const INK = '#1C1D21';
-const MUTED = '#63666D';
-const LINE = '#E3E3E6';
+
+// Email clients can't load local files — the logo needs a live, absolute URL.
+// TODO: swap this to https://humankindhrsolutions.com/... once the domain migration is done.
+const LOGO_URL = 'https://humankindhrsolutions-website.vercel.app/images/logos/HK_LOGO.png';
+
+const INK = '#0B0B0C';
+const MUTED = '#6B6B6E';
+const FAINT = '#9A9A9E';
+const LINE = '#E4E4E6';
+const PAPER = '#FAFAFA';
 
 /** Escape user-supplied text before it goes into the HTML email. */
 function esc(value) {
@@ -26,56 +32,95 @@ function list(arr) {
 }
 
 /**
- * Build a branded HTML email.
+ * Build a premium, black-and-white branded HTML email.
  * @param {object} opts
- * @param {string} opts.title      Headline shown in the coloured header bar.
- * @param {string} opts.subtitle   Small line under the headline.
- * @param {Array<[string,string]>} opts.rows  Label/value pairs (values already escaped).
+ * @param {string} opts.eyebrow    Small uppercase label above the title (e.g. "New submission").
+ * @param {string} opts.title      Headline shown under the header.
+ * @param {string} opts.subtitle   One line of supporting copy.
+ * @param {Array<[string,string]>} opts.rows  Label/value pairs (values already escaped/HTML-safe).
  * @param {string} [opts.message]  Optional free-text block (already escaped).
  * @param {string} [opts.messageLabel]
+ * @param {string} [opts.replyTo]  If set, adds a "Reply to sender" CTA button.
+ * @param {string} [opts.replyToName]
  */
-function buildEmail({ title, subtitle, rows, message, messageLabel = 'Message' }) {
+function buildEmail({ eyebrow, title, subtitle, rows, message, messageLabel = 'Message', replyTo, replyToName }) {
   const rowsHtml = rows
     .map(
-      ([label, value]) => `
+      ([label, value], i) => `
         <tr>
-          <td style="padding:12px 0;border-bottom:1px solid ${LINE};color:${MUTED};font-size:13px;width:190px;vertical-align:top;">${esc(label)}</td>
-          <td style="padding:12px 0;border-bottom:1px solid ${LINE};color:${INK};font-size:14px;font-weight:600;vertical-align:top;">${value}</td>
+          <td style="padding:${i === 0 ? '0' : '18px'} 0 18px;border-bottom:1px solid ${LINE};color:${FAINT};font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;width:180px;vertical-align:top;">${esc(label)}</td>
+          <td style="padding:${i === 0 ? '0' : '18px'} 0 18px;border-bottom:1px solid ${LINE};color:${INK};font-size:15px;font-weight:600;vertical-align:top;">${value}</td>
         </tr>`
     )
     .join('');
 
   const messageHtml = message
     ? `
-      <p style="margin:28px 0 8px;color:${MUTED};font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">${esc(messageLabel)}</p>
-      <div style="background:#F6F7F9;border-left:3px solid ${BRAND};border-radius:0 8px 8px 0;padding:16px 18px;color:${INK};font-size:14px;line-height:1.65;white-space:pre-wrap;">${message}</div>`
+      <tr>
+        <td style="padding:28px 0 0;">
+          <p style="margin:0 0 10px;color:${FAINT};font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">${esc(messageLabel)}</p>
+          <div style="background:${PAPER};border-left:3px solid ${INK};padding:18px 20px;color:${INK};font-size:15px;line-height:1.7;white-space:pre-wrap;">${message}</div>
+        </td>
+      </tr>`
+    : '';
+
+  const ctaHtml = replyTo
+    ? `
+      <tr>
+        <td style="padding:32px 0 0;">
+          <a href="mailto:${esc(replyTo)}" style="display:inline-block;background:${INK};color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.03em;padding:14px 28px;border-radius:2px;">
+            Reply to ${replyToName ? esc(replyToName.split(' ')[0]) : 'sender'} &rarr;
+          </a>
+        </td>
+      </tr>`
     : '';
 
   return `<!doctype html>
 <html>
-  <body style="margin:0;padding:0;background:#EEF0F3;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF0F3;padding:32px 16px;">
+  <body style="margin:0;padding:0;background:${PAPER};">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};padding:40px 16px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 4px 18px rgba(20,20,22,.08);font-family:Calibri,'Trebuchet MS',Arial,sans-serif;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#ffffff;font-family:Calibri,'Trebuchet MS',Arial,sans-serif;">
+
+            <!-- header -->
             <tr>
-              <td style="background:${BRAND};padding:26px 32px;">
-                <div style="color:rgba(255,255,255,.75);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;">HumanKind HR Solutions</div>
-                <div style="color:#ffffff;font-size:21px;font-weight:700;margin-top:6px;">${esc(title)}</div>
-                <div style="color:rgba(255,255,255,.85);font-size:13px;margin-top:4px;">${esc(subtitle)}</div>
+              <td style="background:${INK};padding:36px 40px;text-align:center;">
+                <img src="${LOGO_URL}" alt="HumanKind HR Solutions" width="170" style="display:block;margin:0 auto;width:170px;height:auto;border:0;" />
               </td>
             </tr>
+
+            <!-- title block -->
             <tr>
-              <td style="padding:28px 32px 32px;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rowsHtml}</table>
-                ${messageHtml}
+              <td style="padding:36px 40px 8px;border-bottom:1px solid ${LINE};">
+                <p style="margin:0 0 10px;color:${FAINT};font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;">${esc(eyebrow)}</p>
+                <h1 style="margin:0 0 8px;color:${INK};font-size:24px;font-weight:800;letter-spacing:-.01em;">${esc(title)}</h1>
+                <p style="margin:0 0 28px;color:${MUTED};font-size:14px;">${esc(subtitle)}</p>
               </td>
             </tr>
+
+            <!-- content -->
             <tr>
-              <td style="padding:18px 32px 26px;border-top:1px solid ${LINE};color:${MUTED};font-size:12px;line-height:1.6;">
-                Sent automatically from humankindhrsolutions.com. Reply directly to this email to reach the sender.
+              <td style="padding:32px 40px 40px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  ${rowsHtml}
+                </table>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  ${messageHtml}
+                  ${ctaHtml}
+                </table>
               </td>
             </tr>
+
+            <!-- footer -->
+            <tr>
+              <td style="padding:22px 40px;background:${PAPER};border-top:1px solid ${LINE};">
+                <p style="margin:0;color:${FAINT};font-size:11px;line-height:1.6;letter-spacing:.02em;">
+                  HUMANKIND HR SOLUTIONS &nbsp;&middot;&nbsp; Sent automatically from humankindhrsolutions.com
+                </p>
+              </td>
+            </tr>
+
           </table>
         </td>
       </tr>
