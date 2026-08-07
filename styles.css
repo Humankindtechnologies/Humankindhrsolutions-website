@@ -729,14 +729,13 @@ img { display: block; max-width: 100%; }
 .hris-dot--red { background: #ff5f57; }
 .hris-dot--yellow { background: #febc2e; }
 .hris-dot--green { background: #28c840; }
-.hris-url {
+.hris-brand {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(28,29,33,.05); color: var(--muted); font-size: .74rem; font-weight: 600;
-  padding: 5px 14px; border-radius: 7px; max-width: 60%;
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%; background: var(--navy);
+  box-shadow: 0 2px 6px rgba(28,29,33,.25);
 }
-.hris-url b { display: inline-flex; width: 12px; height: 12px; flex: none; }
-.hris-url b svg { width: 12px; height: 12px; }
+.hris-brand img { width: 15px; height: 15px; display: block; }
 .hris-mock-body { display: grid; grid-template-columns: 200px 1fr; }
 .hris-mock-nav { display: flex; flex-direction: column; gap: 2px; padding: 20px 14px; background: var(--sky); border-right: 1px solid var(--line); }
 .hris-nav-item {
@@ -855,7 +854,6 @@ img { display: block; max-width: 100%; }
 @media (max-width: 760px) {
   .hris-mock { margin-top: 30px; border-radius: 14px; }
   .hris-mock-bar { padding: 11px 14px; }
-  .hris-url { display: none; }
   .hris-mock-body { grid-template-columns: 1fr; }
   /* sidebar becomes a swipeable pill row */
   .hris-mock-nav {
