@@ -877,7 +877,7 @@ function handleSubmit(e) {
 
   const screens = [...stage.querySelectorAll('.hris-screen')];
   const navItems = [...nav.querySelectorAll('.hris-nav-item')];
-  const DELAY = 6000;
+  const DELAY = 3200; // was 6000 — felt sluggish
   let idx = 0, timer = null;
 
   screens.forEach((_, n) => {
@@ -888,6 +888,20 @@ function handleSubmit(e) {
     dotsWrap.appendChild(d);
   });
   const dots = [...dotsWrap.children];
+
+  // Screens are absolutely positioned for the crossfade, which takes them
+  // out of flow — measure each one's natural height and size the stage to
+  // the tallest so the card doesn't jump as it cycles.
+  function sizeStage() {
+    let max = 0;
+    screens.forEach((el) => {
+      const restore = el.style.cssText;
+      el.style.cssText = 'position:relative;visibility:hidden;opacity:0;pointer-events:none;transform:none;transition:none;';
+      max = Math.max(max, el.offsetHeight);
+      el.style.cssText = restore;
+    });
+    stage.style.minHeight = max + 'px';
+  }
 
   function apply(n) {
     idx = n;
@@ -902,5 +916,10 @@ function handleSubmit(e) {
   navItems.forEach((btn, n) => btn.addEventListener('click', () => go(n, true)));
   stage.addEventListener('mouseenter', () => clearInterval(timer));
   stage.addEventListener('mouseleave', start);
+
+  sizeStage();
+  window.addEventListener('resize', sizeStage);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeStage);
+
   start();
 })();

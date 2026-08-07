@@ -738,10 +738,17 @@ img { display: block; max-width: 100%; }
 .hris-nav-item:hover { background: var(--blue-soft); color: var(--blue); }
 .hris-nav-item.active { background: var(--blue-soft); color: var(--blue); }
 .hris-stage { position: relative; }
-.hris-screen { display: none; padding: 28px 32px; animation: hrisIn .45s var(--ease); }
-.hris-screen.active { display: block; }
+.hris-screen {
+  position: absolute; inset: 0; padding: 28px 32px;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: scale(.985);
+  transition: opacity .5s var(--ease), transform .5s var(--ease), visibility 0s linear .5s;
+}
+.hris-screen.active {
+  position: relative; opacity: 1; visibility: visible; pointer-events: auto;
+  transform: scale(1); transition: opacity .5s var(--ease), transform .5s var(--ease);
+}
 .hris-screen h3 { font-size: 1.15rem; margin-bottom: 20px; }
-@keyframes hrisIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 .hris-dots { display: flex; justify-content: center; gap: 9px; margin-top: 22px; }
 .hris-cdot { width: 9px; height: 9px; border-radius: 50%; border: none; padding: 0; cursor: pointer; background: var(--line); transition: background .25s, transform .25s, width .25s; }
