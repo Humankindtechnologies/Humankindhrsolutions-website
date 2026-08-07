@@ -26,6 +26,7 @@ const ICONS = {
   gear:      _S + '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12h2.5M19 12h2.5M5.1 5.1l1.8 1.8M17.1 17.1l1.8 1.8M18.9 5.1l-1.8 1.8M6.9 17.1l-1.8 1.8"/>' + _E,
   globe:     _S + '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/>' + _E,
   lock:      _S + '<rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.2"/>' + _E,
+  briefcase: _S + '<rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M8.5 7.5V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.5"/><path d="M3 12.5h18"/><path d="M10.5 12.5v1.5h3v-1.5"/>' + _E,
   link:      _S + '<path d="M9.5 13.5a3.6 3.6 0 0 0 5.4.4l2.2-2.2a3.6 3.6 0 0 0-5.1-5.1l-1.2 1.2"/><path d="M14.5 10.5a3.6 3.6 0 0 0-5.4-.4l-2.2 2.2a3.6 3.6 0 0 0 5.1 5.1l1.2-1.2"/>' + _E,
   heartpulse:_S + '<path d="M12 20s-6.5-4.2-6.5-9A3.6 3.6 0 0 1 12 8.2 3.6 3.6 0 0 1 18.5 11c0 1-.3 2-.8 2.9"/><path d="M6 12.5h2.5L10 9.5l2 5 1.4-2.8H18"/>' + _E,
   brain:     _S + '<path d="M12 6.2A3 3 0 0 0 6.5 7.8 2.6 2.6 0 0 0 5 12.4 3 3 0 0 0 8.2 17H12z"/><path d="M12 6.2A3 3 0 0 1 17.5 7.8 2.6 2.6 0 0 1 19 12.4 3 3 0 0 1 15.8 17H12z"/><path d="M12 6.2V17"/>' + _E,
@@ -870,17 +871,15 @@ function handleSubmit(e) {
   const dots = [...dotsWrap.children];
 
   // Screens are absolutely positioned for the crossfade, which takes them
-  // out of flow — measure each one's natural height and size the stage to
-  // the tallest so the card doesn't jump as it cycles.
-  function sizeStage() {
-    let max = 0;
-    screens.forEach((el) => {
-      const restore = el.style.cssText;
-      el.style.cssText = 'position:relative;visibility:hidden;opacity:0;pointer-events:none;transform:none;transition:none;';
-      max = Math.max(max, el.offsetHeight);
-      el.style.cssText = restore;
-    });
-    stage.style.minHeight = max + 'px';
+  // out of flow — measure a screen's natural height on demand and animate
+  // the stage to match, so each screen gets its own height instead of every
+  // screen being padded out to match the tallest one.
+  function measureHeight(el) {
+    const restore = el.style.cssText;
+    el.style.cssText = 'position:relative;visibility:hidden;opacity:0;pointer-events:none;transform:none;transition:none;';
+    const h = el.offsetHeight;
+    el.style.cssText = restore;
+    return h;
   }
 
   function apply(n) {
@@ -888,6 +887,7 @@ function handleSubmit(e) {
     screens.forEach((el, k) => el.classList.toggle('active', k === n));
     navItems.forEach((el, k) => el.classList.toggle('active', k === n));
     dots.forEach((el, k) => el.classList.toggle('active', k === n));
+    stage.style.height = measureHeight(screens[n]) + 'px';
   }
   function next() { apply((idx + 1) % screens.length); }
   function start() { clearInterval(timer); timer = setInterval(next, DELAY); }
@@ -897,9 +897,20 @@ function handleSubmit(e) {
   stage.addEventListener('mouseenter', () => clearInterval(timer));
   stage.addEventListener('mouseleave', start);
 
-  sizeStage();
-  window.addEventListener('resize', sizeStage);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeStage);
+  // Set the first height instantly (no grow-in animation on page load),
+  // then let the height transition apply to every screen change after.
+  stage.style.transition = 'none';
+  stage.style.height = measureHeight(screens[idx]) + 'px';
+  requestAnimationFrame(() => { stage.style.transition = ''; });
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { stage.style.height = measureHeight(screens[idx]) + 'px'; }, 150);
+  });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => { stage.style.height = measureHeight(screens[idx]) + 'px'; });
+  }
 
   start();
 })();
