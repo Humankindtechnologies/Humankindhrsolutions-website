@@ -659,7 +659,7 @@ function handleSubmit(e) {
     }
   ];
 
-  const DUR = 5500;
+  const DUR = 8000;
   let cur = 0, autoTimer, restartTimer;
 
   const icon = (key) => (typeof ICONS !== 'undefined' && ICONS[key]) ? ICONS[key] : '';
@@ -670,8 +670,7 @@ function handleSubmit(e) {
     step.type = 'button';
     step.innerHTML =
       '<span class="ps-num">0' + (i + 1) + '</span>' +
-      '<span class="ps-tx"><strong>' + s.title + '</strong><em>' + s.sub + '</em></span>' +
-      '<span class="ps-prog"><i></i></span>';
+      '<span class="ps-tx"><strong>' + s.title + '</strong><em>' + s.sub + '</em></span>';
     step.addEventListener('click', () => goManual(i));
     rail.appendChild(step);
 
@@ -713,21 +712,6 @@ function handleSubmit(e) {
 
   mq.addEventListener('change', () => placeStage(cur));
 
-  function setProgress(duration) {
-    steps.forEach(el => {
-      const fill = el.querySelector('.ps-prog i');
-      fill.style.animation = 'none';
-      clearTimeout(fill._pt);
-      fill.style.width = '0';
-    });
-    if (duration > 0) {
-      const fill = steps[cur].querySelector('.ps-prog i');
-      fill._pt = setTimeout(function () {
-        fill.style.animation = 'railFill ' + duration + 'ms linear forwards';
-      }, 32);
-    }
-  }
-
   function go(i) {
     cur = (i + STEPS.length) % STEPS.length;
     applyStep(cur);
@@ -735,11 +719,8 @@ function handleSubmit(e) {
 
   function startAuto() {
     clearInterval(autoTimer);
-    autoTimer = null;
-    setProgress(DUR);
     autoTimer = setInterval(function () {
       go((cur + 1) % STEPS.length);
-      setProgress(DUR);
     }, DUR);
   }
 
@@ -748,7 +729,6 @@ function handleSubmit(e) {
     clearTimeout(restartTimer);
     autoTimer = null;
     restartTimer = null;
-    setProgress(0);
   }
 
   function goManual(i) {

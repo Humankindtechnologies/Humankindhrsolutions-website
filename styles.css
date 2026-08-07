@@ -46,7 +46,7 @@ a { text-decoration: none; color: inherit; }
 img { display: block; max-width: 100%; }
 
 .container { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
-.section { padding: 110px 0; }
+.section { padding: 80px 0; }
 .accent { color: var(--navy); }
 
 .eyebrow {
@@ -421,7 +421,7 @@ img { display: block; max-width: 100%; }
 @media (max-width: 480px) { .pillar-grid { grid-template-columns: 1fr; } }
 
 /* About — mission statement band */
-.mission-band { background: var(--sky); padding: 86px 0; text-align: center; }
+.mission-band { background: var(--sky); padding: 64px 0; text-align: center; }
 .mission-band .container { max-width: 980px; }
 .mission-band h2 { font-size: clamp(1.7rem, 3.5vw, 2.5rem); font-weight: 800; margin-bottom: 18px; }
 .mission-band p { color: var(--muted); font-size: 1.1rem; line-height: 1.75; }
@@ -660,7 +660,7 @@ img { display: block; max-width: 100%; }
 }
 
 /* intro split */
-.svc-intro { padding: 100px 0; }
+.svc-intro { padding: 72px 0; }
 .svc-intro.svc-alt { background: var(--chip); }
 .svc-split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
 .svc-split.reverse { direction: rtl; }
@@ -671,7 +671,7 @@ img { display: block; max-width: 100%; }
 .svc-media .placeholder-img { aspect-ratio: 5/4; }
 
 /* feature grid */
-.svc-features { padding: 100px 0; background: var(--sky); }
+.svc-features { padding: 72px 0; background: var(--sky); }
 .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .feature-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 32px 28px; box-shadow: var(--shadow-sm); transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
 .feature-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
@@ -686,7 +686,7 @@ img { display: block; max-width: 100%; }
 .svc-list .tick { margin-top: 2px; }
 
 /* outcomes band */
-.svc-outcomes { padding: 110px 0; }
+.svc-outcomes { padding: 80px 0; }
 .outcome-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; text-align: left; counter-reset: outcome; }
 .outcome-grid > div {
   position: relative; background: var(--sky); border: 1px solid var(--line); border-radius: 16px;
@@ -1072,7 +1072,7 @@ img { display: block; max-width: 100%; }
   .svc-split, .svc-split.reverse { grid-template-columns: 1fr; direction: ltr; gap: 40px; }
   .feature-grid { grid-template-columns: 1fr; }
   .outcome-grid { grid-template-columns: 1fr; gap: 20px; }
-  .svc-intro, .svc-features, .svc-outcomes { padding: 70px 0; }
+  .svc-intro, .svc-features, .svc-outcomes { padding: 56px 0; }
   .page-hero { padding: 150px 0 70px; }
 }
 
@@ -1113,7 +1113,7 @@ img { display: block; max-width: 100%; }
 .step.active .step-ic { transform: translateY(-2px) scale(1.08); }
 
 /* ============ STATS BAND ============ */
-.stats-band { position: relative; overflow: hidden; color: #fff; padding: 100px 0; background: linear-gradient(120deg, var(--surface-dark) 0%, var(--navy-3) 55%, var(--navy-2) 140%); }
+.stats-band { position: relative; overflow: hidden; color: #fff; padding: 84px 0; background: linear-gradient(120deg, var(--surface-dark) 0%, var(--navy-3) 55%, var(--navy-2) 140%); }
 .stats-band::before { content: ""; position: absolute; inset: 0; z-index: 1;
   background: linear-gradient(120deg, rgba(15,16,19,.86) 0%, rgba(15,16,19,.72) 55%, rgba(15,16,19,.86) 100%); }
 .stats-band .container { position: relative; z-index: 2; }
@@ -1263,7 +1263,7 @@ img { display: block; max-width: 100%; }
   .header-inner { gap: 12px; }
   .brand-logo { height: 60px; }
   .site-header.scrolled .brand-logo { height: 52px; }
-  .section { padding: 80px 0; }
+  .section { padding: 64px 0; }
   .process-list { grid-template-columns: 1fr; }
   .contact-grid { grid-template-columns: 1fr; gap: 40px; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -1305,9 +1305,6 @@ img { display: block; max-width: 100%; }
 .proc-step.active .ps-tx strong { color: var(--navy); }
 .ps-tx em { font-style: normal; font-size: .82rem; color: var(--muted); transition: color .25s; }
 .proc-step.active .ps-tx em { color: var(--blue); }
-.ps-prog { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: rgba(45,107,224,.15); }
-.ps-prog i { display: block; height: 100%; width: 0; background: var(--blue); }
-@keyframes railFill { from { width: 0; } to { width: 100%; } }
 
 .proc-stage { position: relative; display: grid; }
 .proc-card {
