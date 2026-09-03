@@ -755,6 +755,20 @@ function handleSubmit(e) {
 })();
 
 /* ============================================================
+   Client logo marquee — held paused until scrolled into view, so
+   every visitor gets a full, fresh pass instead of the strip having
+   already been scrolling invisibly since page load.
+   ============================================================ */
+(function () {
+  const marquee = document.querySelector('.trust-marquee');
+  if (!marquee) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { marquee.classList.add('in'); io.unobserve(marquee); } });
+  }, { threshold: 0.2 });
+  io.observe(marquee);
+})();
+
+/* ============================================================
    MyPersonalHealthPlan — "Other Individual Options" tabs
    ============================================================ */
 (function () {

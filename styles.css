@@ -342,7 +342,10 @@ img { display: block; max-width: 100%; }
   display: flex; align-items: center; gap: 40px;
   width: max-content;
   animation: marquee 85s linear infinite;
+  animation-delay: -4s; /* starts just clear of the left fade instead of flush at the edge */
+  animation-play-state: paused; /* held until the strip actually scrolls into view — see script.js */
 }
+.trust-marquee.in .trust-track { animation-play-state: running; }
 .trust-marquee:hover .trust-track { animation-play-state: paused; }
 .trust-track span { font-family: 'Calibri', 'Trebuchet MS', sans-serif; font-weight: 700; font-size: .95rem; color: var(--muted); white-space: nowrap; letter-spacing: .04em; }
 .trust-sep { color: var(--line) !important; font-weight: 300 !important; font-size: 1.2rem !important; }
