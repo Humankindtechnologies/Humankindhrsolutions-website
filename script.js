@@ -138,13 +138,81 @@ function injectIcons(root) {
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 })();
 
+/* ---- Form spam protection: Cloudflare Turnstile ----
+   Only switches on once TURNSTILE_SITE_KEY is set in Vercel. Until then (and on the
+   local preview server, which has no /api) mount() quietly does nothing. */
+const hkCaptcha = (function () {
+  let ready = null;
+  let siteKey = null;
+  const widgets = new Map(); // slot element -> Turnstile widget id
+
+  function load() {
+    if (ready) return ready;
+    ready = fetch('/api/turnstile-config')
+      .then(res => (res.ok ? res.json() : {}))
+      .then(cfg => {
+        siteKey = cfg && cfg.siteKey;
+        if (!siteKey) return false;
+        return new Promise(resolve => {
+          window.hkTurnstileReady = () => resolve(true);
+          const s = document.createElement('script');
+          s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=hkTurnstileReady';
+          s.async = true;
+          s.onerror = () => resolve(false);
+          document.head.appendChild(s);
+        });
+      })
+      .catch(() => false);
+    return ready;
+  }
+
+  function mount(slot) {
+    if (!slot) return;
+    load().then(ok => {
+      if (!ok || widgets.has(slot)) return;
+      widgets.set(slot, window.turnstile.render(slot, {
+        sitekey: siteKey,
+        theme: slot.dataset.theme || 'light',
+        size: 'flexible',
+      }));
+    });
+  }
+
+  // '' when this form has no widget (nothing to send) or it isn't solved yet.
+  function token(slot) {
+    const id = widgets.get(slot);
+    return id === undefined ? '' : (window.turnstile.getResponse(id) || '');
+  }
+  function pending(slot) { return widgets.has(slot) && !token(slot); }
+  function reset(slot) {
+    const id = widgets.get(slot);
+    if (id !== undefined) window.turnstile.reset(id);
+  }
+
+  return { mount, token, pending, reset };
+})();
+
+// When the page loaded — sent with the form so the server can drop instant bot submissions.
+const hkPageOpenedAt = Date.now();
+document.querySelectorAll('.contact-glass-card .captcha-slot').forEach(slot => hkCaptcha.mount(slot));
+
 /* ---- Contact form → /api/send-contact ---- */
 function handleSubmit(e) {
   e.preventDefault();
   const form = e.target;
   const note = document.getElementById('formNote');
   const btn = form.querySelector('button[type="submit"]');
+  const slot = form.querySelector('.captcha-slot');
   const data = new FormData(form);
+
+  if (hkCaptcha.pending(slot)) {
+    if (note) {
+      note.textContent = 'Please complete the quick verification check above.';
+      note.style.color = '#ffb4b4';
+      note.hidden = false;
+    }
+    return false;
+  }
 
   const original = btn.textContent;
   btn.disabled = true;
@@ -159,9 +227,15 @@ function handleSubmit(e) {
       email: (data.get('email') || '').trim(),
       company: (data.get('company') || '').trim(),
       message: (data.get('message') || '').trim(),
+      website: data.get('website') || '',
+      elapsed: Date.now() - hkPageOpenedAt,
+      turnstileToken: hkCaptcha.token(slot),
     }),
   })
-    .then((res) => { if (!res.ok) throw new Error('Request failed'); return res.json().catch(() => ({})); })
+    .then((res) => res.json().catch(() => ({})).then((body) => {
+      if (!res.ok) { const err = new Error(body.error || 'Request failed'); err.code = body.code; throw err; }
+      return body;
+    }))
     .then(() => {
       if (note) {
         note.textContent = "Thanks! We'll be in touch within one business day.";
@@ -171,8 +245,13 @@ function handleSubmit(e) {
       btn.textContent = 'Message Sent ✓';
       form.reset();
     })
-    .catch(() => {
-      if (note) {
+    .catch((err) => {
+      hkCaptcha.reset(slot);
+      if (note && (err.code === 'captcha' || err.code === 'email')) {
+        note.textContent = err.message;
+        note.style.color = '#ffb4b4';
+        note.hidden = false;
+      } else if (note) {
         note.innerHTML = "Sorry — that didn't send. Please email us directly at <strong>info@humankindhrsolutions.com</strong>.";
         note.style.color = '#ffb4b4';
         note.hidden = false;
@@ -327,6 +406,8 @@ function handleSubmit(e) {
             '</div>' +
             '<label>Phone <span style="font-weight:400;color:var(--muted)">(optional)</span><input type="tel" id="leadPhone" placeholder="(902) 555-0100" /></label>' +
           '</div>' +
+          '<div class="hp-field" aria-hidden="true"><label>Website<input type="text" id="leadWebsite" tabindex="-1" autocomplete="off" /></label></div>' +
+          '<div class="captcha-slot" id="leadCaptcha"></div>' +
           '<div class="lead-note"><span data-icon="phone"></span><span>We\'ll reach out by phone or email during that window to confirm a time.</span></div>' +
         '</div>' +
         '<div class="lead-step" data-step="3">' +
@@ -345,6 +426,8 @@ function handleSubmit(e) {
   const bookDaysWrap = overlay.querySelector('#bookDays');
   const bookSlotsWrap = overlay.querySelector('#bookSlots');
   const slotDayLabel = overlay.querySelector('#slotDayLabel');
+  const captchaSlot = overlay.querySelector('#leadCaptcha');
+  let openedAt = Date.now();
   const SLOTS = [
     { label: 'Morning', hint: '8 – 11am' },
     { label: 'Afternoon', hint: '11am – 4pm' },
@@ -422,6 +505,9 @@ function handleSubmit(e) {
 
   function open() {
     step = 0; buildBooking(); render();
+    openedAt = Date.now();
+    hkCaptcha.reset(captchaSlot);
+    hkCaptcha.mount(captchaSlot);
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -449,6 +535,7 @@ function handleSubmit(e) {
       let ok = true;
       [name, email].forEach(f => { if (!f.value.trim()) { f.style.borderColor = '#e03b3b'; ok = false; } else { f.style.borderColor = ''; } });
       if (!selSlot) { bookSlotsWrap.animate([{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'none' }], 250); ok = false; }
+      if (hkCaptcha.pending(captchaSlot)) { captchaSlot.animate([{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'none' }], 250); ok = false; }
       if (!ok) return;
 
       const dt = bookingDays[selDay];
@@ -469,9 +556,15 @@ function handleSubmit(e) {
           needs: needs,
           preferredDay: dayLong,
           preferredWindow: selSlot,
+          website: overlay.querySelector('#leadWebsite').value,
+          elapsed: Date.now() - openedAt,
+          turnstileToken: hkCaptcha.token(captchaSlot),
         }),
       })
-        .then(res => { if (!res.ok) throw new Error('Request failed'); return res.json().catch(() => ({})); })
+        .then(res => res.json().catch(() => ({})).then(body => {
+          if (!res.ok) { const err = new Error(body.error || 'Request failed'); err.code = body.code; throw err; }
+          return body;
+        }))
         .then(() => {
           const title = overlay.querySelector('#leadSuccessTitle');
           const msg = overlay.querySelector('#leadSuccessMsg');
@@ -479,7 +572,14 @@ function handleSubmit(e) {
           if (msg) msg.innerHTML = 'Thanks, ' + name.value.trim().split(' ')[0] + ' — we\'ll reach out <strong>' + dayLong + '</strong>, ' + selSlot.toLowerCase() + ', by phone or email.';
           step = 3; render();
         })
-        .catch(() => {
+        .catch((err) => {
+          hkCaptcha.reset(captchaSlot);
+          if (err.code === 'captcha' || err.code === 'email') {
+            // Fixable by the visitor — keep them on the form instead of the dead-end screen.
+            if (err.code === 'email') email.style.borderColor = '#e03b3b';
+            (err.code === 'email' ? email : captchaSlot).animate([{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'none' }], 250);
+            return;
+          }
           const title = overlay.querySelector('#leadSuccessTitle');
           const msg = overlay.querySelector('#leadSuccessMsg');
           if (title) title.textContent = 'Something went wrong';

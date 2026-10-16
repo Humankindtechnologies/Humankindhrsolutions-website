@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="images/logos/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="images/logos/favicon-192.png" />
   <link rel="apple-touch-icon" href="images/logos/favicon-180.png" />
-  <link rel="stylesheet" href="styles.css?v=50" />
+  <link rel="stylesheet" href="styles.css?v=51" />
 </head>
 <body>
 
@@ -95,6 +95,8 @@
             </div>
             <label style="display:flex;flex-direction:column;gap:6px;font-family:Calibri,'Trebuchet MS',sans-serif;font-weight:600;font-size:.85rem;color:rgba(255,255,255,.85);">Company<input type="text" name="company" placeholder="Company name" /></label>
             <label style="display:flex;flex-direction:column;gap:6px;font-family:Calibri,'Trebuchet MS',sans-serif;font-weight:600;font-size:.85rem;color:rgba(255,255,255,.85);">How can we help?<textarea name="message" rows="4" placeholder="Tell us what you're working on..." required></textarea></label>
+            <div class="hp-field" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+            <div class="captcha-slot" data-theme="dark"></div>
             <button type="submit" class="btn btn-primary btn-block">Send Message</button>
             <p class="form-note" id="formNote" hidden>Thanks! We'll be in touch within one business day.</p>
           </form>
@@ -119,6 +121,6 @@
     <div class="container footer-bottom"><span>© <span id="year"></span> HumanKind HR Solutions. All rights reserved.</span><a href="privacy-policy.html">Privacy Policy</a></div>
   </footer>
 
-  <script src="script.js?v=20"></script>
+  <script src="script.js?v=21"></script>
 </body>
 </html>

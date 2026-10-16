@@ -1604,3 +1604,10 @@ img { display: block; max-width: 100%; }
   .plan-media { height: 215px; }
   .mphp-partner-logo { height: auto; width: 100%; max-width: 280px; }
 }
+
+/* ---- Form spam protection ---- */
+/* Honeypot: off-screen so people never see or tab into it; bots fill it in. */
+.hp-field { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+.captcha-slot:empty { display: none; }
+.captcha-slot { margin: 4px 0 2px; min-height: 65px; }
+.lead-modal .captcha-slot { margin-top: 18px; }

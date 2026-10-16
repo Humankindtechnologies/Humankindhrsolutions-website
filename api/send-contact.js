@@ -1,6 +1,7 @@
 // Vercel serverless function — receives the Contact Us form and emails it via SendGrid.
 // Env vars required: SENDGRID_API_KEY, SENDGRID_FROM_EMAIL (see _email.js).
 const { esc, buildEmail, sendEmail } = require('./_email');
+const { blockSpam } = require('./_spam');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -13,6 +14,8 @@ module.exports = async (req, res) => {
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Name, email and message are required' });
   }
+
+  if (await blockSpam(req, res, { text: [name, company, message], minMs: 3000 })) return;
 
   const html = buildEmail({
     eyebrow: 'New submission',

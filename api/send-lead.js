@@ -1,6 +1,7 @@
 // Vercel serverless function — receives the "Let's Talk" lead modal and emails it via SendGrid.
 // Env vars required: SENDGRID_API_KEY, SENDGRID_FROM_EMAIL (see _email.js).
 const { esc, list, buildEmail, sendEmail } = require('./_email');
+const { blockSpam } = require('./_spam');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -13,6 +14,8 @@ module.exports = async (req, res) => {
   if (!name || !email) {
     return res.status(400).json({ error: 'Name and email are required' });
   }
+
+  if (await blockSpam(req, res, { text: [name, phone], minMs: 4000 })) return;
 
   const reachAt = [preferredDay, preferredWindow].filter(Boolean).map(esc).join(' &middot; ') || '&mdash;';
 

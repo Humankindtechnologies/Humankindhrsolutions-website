@@ -253,6 +253,26 @@ Always set **both** `--bg-pos` and `--bg-pos-m` inline on every background photo
 - [x] About page content updated: "Putting wellness into HR", 20+ years, mission, 6 pillars, 3 differentiator cards
 - [x] Background photo mobile framing system (`--bg-pos` / `--bg-pos-m`)
 - [x] Hero slide 2 replaced with `DedicatedHR_Lifecycle.jpg` (face-over-text problem solved)
+- [x] Spam protection on the Contact form and "Let's Talk" modal (see below)
+
+### Form spam protection
+
+All checks run server-side in `api/_spam.js`, called by `api/send-contact.js` and `api/send-lead.js`:
+
+1. **Honeypot.** A hidden `website` field (`.hp-field`) that visitors never see. Bots fill it in.
+2. **Speed check.** The browser sends `elapsed` (ms the form was open). If it's missing, or under 3s (contact) / 4s (lead), the submission is dropped. This also catches bots posting straight to `/api`.
+3. **Content filter.** Drops 3+ links, a link in the name, Cyrillic/CJK/Arabic/Thai text, and SEO/crypto/casino-style pitches.
+4. **Cloudflare Turnstile.** A free bot check, only active once both env vars below are set.
+
+Layers 1–3 fail silently: the bot gets a normal "success" response and nothing is emailed. Each one is logged as `Spam blocked: <reason>` in Vercel → Logs. Turnstile failures show the visitor a "please try again" message.
+
+**Turning on Turnstile (one-time, about 5 minutes):**
+1. Sign up free at dash.cloudflare.com → **Turnstile** → **Add widget**.
+2. Hostnames: `humankindhrsolutions.com`, `humankindhrsolutions-website.vercel.app` (add `localhost` for testing). Widget mode: **Managed**.
+3. Copy the **Site Key** and **Secret Key**.
+4. In Vercel → Project → Settings → Environment Variables, add `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` (Production + Preview), then redeploy.
+
+The widget appears automatically above the submit buttons. Before the keys are set, everything else still protects the forms.
 
 ---
 
@@ -262,7 +282,7 @@ Always set **both** `--bg-pos` and `--bg-pos-m` inline on every background photo
 |---|---|---|
 | HIGH | 6 subpage hero background photos missing (see list above) | Slots wired — awaiting image files from client |
 | HIGH | `assured-access.pdf` — Assured Access download on MPHP page | File doesn't exist yet |
-| MEDIUM | Wire real email to contact form (Resend or similar) | Not started |
+| MEDIUM | Add Turnstile keys in Vercel (see "Form spam protection") | Code done — awaiting Cloudflare account |
 | MEDIUM | Deploy to Vercel | Not started — client approved Vercel as hosting |
 | LOW | Real Google Calendar / Calendly integration for "Let's Talk" modal | Currently fake — shows confirmation UI only |
 
