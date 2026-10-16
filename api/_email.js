@@ -4,6 +4,9 @@
 // Required environment variables (set in Vercel → Settings → Environment Variables):
 //   SENDGRID_API_KEY    — your SendGrid API key
 //   SENDGRID_FROM_EMAIL — a sender address verified in SendGrid (Single Sender or domain auth)
+//
+// Emails are built from small table-based pieces with inline styles only — the one
+// layout approach that renders the same in Gmail, Outlook and Apple Mail.
 
 const TO_EMAIL = 'info@humankindhrsolutions.com';
 
@@ -11,11 +14,18 @@ const TO_EMAIL = 'info@humankindhrsolutions.com';
 // TODO: swap this to https://humankindhrsolutions.com/... once the domain migration is done.
 const LOGO_URL = 'https://humankindhrsolutions-website.vercel.app/images/logos/HK_LOGO.png';
 
-const INK = '#0B0B0C';
-const MUTED = '#6B6B6E';
-const FAINT = '#9A9A9E';
-const LINE = '#E4E4E6';
-const PAPER = '#FAFAFA';
+// Brand palette (mirrors :root in styles.css)
+const INK = '#1C1D21';
+const INK_2 = '#2A2C31';
+const BLUE = '#2D6BE0';
+const BLUE_SOFT = '#EAF1FF';
+const TEXT = '#1F2226';
+const MUTED = '#63666D';
+const FAINT = '#9A9CA2';
+const LINE = '#E3E3E6';
+const PAPER = '#F7F7F8';
+const BG = '#EEEFF2';
+const FONT = "Calibri,'Segoe UI',Helvetica,Arial,sans-serif";
 
 /** Escape user-supplied text before it goes into the HTML email. */
 function esc(value) {
@@ -31,93 +41,170 @@ function list(arr) {
   return Array.isArray(arr) && arr.length ? arr.map(esc).join(', ') : '&mdash;';
 }
 
-/**
- * Build a premium, black-and-white branded HTML email.
- * @param {object} opts
- * @param {string} opts.eyebrow    Small uppercase label above the title (e.g. "New submission").
- * @param {string} opts.title      Headline shown under the header.
- * @param {string} opts.subtitle   One line of supporting copy.
- * @param {Array<[string,string]>} opts.rows  Label/value pairs (values already escaped/HTML-safe).
- * @param {string} [opts.message]  Optional free-text block (already escaped).
- * @param {string} [opts.messageLabel]
- * @param {string} [opts.replyTo]  If set, adds a "Reply to sender" CTA button.
- * @param {string} [opts.replyToName]
- */
-function buildEmail({ eyebrow, title, subtitle, rows, message, messageLabel = 'Message', replyTo, replyToName }) {
-  const rowsHtml = rows
-    .map(
-      ([label, value], i) => `
-        <tr>
-          <td style="padding:${i === 0 ? '0' : '18px'} 0 18px;border-bottom:1px solid ${LINE};color:${FAINT};font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;width:180px;vertical-align:top;">${esc(label)}</td>
-          <td style="padding:${i === 0 ? '0' : '18px'} 0 18px;border-bottom:1px solid ${LINE};color:${INK};font-size:15px;font-weight:600;vertical-align:top;">${value}</td>
-        </tr>`
-    )
+/** "youssef lakhal" → "Youssef" */
+function firstName(name) {
+  const first = String(name || '').trim().split(/\s+/)[0] || 'Someone';
+  return first.charAt(0).toUpperCase() + first.slice(1);
+}
+
+/** "Youssef Lakhal" → "YL" */
+function initials(name) {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  const letters = parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] || '?').slice(0, 2);
+  return letters.toUpperCase();
+}
+
+/** "Friday, Oct 16 · 11:37 a.m. AT" */
+function receivedAt(date = new Date()) {
+  const opts = { timeZone: 'America/Halifax' };
+  const day = date.toLocaleDateString('en-CA', { ...opts, weekday: 'long', month: 'short', day: 'numeric' });
+  const time = date.toLocaleTimeString('en-CA', { ...opts, hour: 'numeric', minute: '2-digit' });
+  return `${day} &middot; ${esc(time)} AT`;
+}
+
+/* ---------- building blocks ---------- */
+
+function button(href, label, primary) {
+  const style = primary
+    ? `background:${BLUE};color:#ffffff;border:1px solid ${BLUE};`
+    : `background:transparent;color:#ffffff;border:1px solid rgba(255,255,255,.35);`;
+  return `<a href="${href}" style="${style}display:inline-block;text-decoration:none;font-family:${FONT};font-size:14px;font-weight:700;padding:12px 22px;border-radius:999px;margin:0 8px 8px 0;">${label}</a>`;
+}
+
+/** A labelled white card section. `inner` is already-safe HTML. */
+function section(label, inner) {
+  return `
+    <tr>
+      <td style="padding:0 32px 28px;">
+        <p style="margin:0 0 12px;color:${FAINT};font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;">${label}</p>
+        ${inner}
+      </td>
+    </tr>`;
+}
+
+/** Rounded light panel. */
+function panel(inner, extra = '') {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};border:1px solid ${LINE};border-radius:14px;${extra}"><tr><td style="padding:18px 20px;">${inner}</td></tr></table>`;
+}
+
+/** Label/value rows inside a panel. Values must already be escaped. */
+function details(rows) {
+  const html = rows
+    .filter(([, v]) => v)
+    .map(([label, value], i) => `
+      <tr>
+        <td style="padding:${i ? '12px' : '0'} 0 0;width:92px;color:${FAINT};font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;vertical-align:top;">${label}</td>
+        <td style="padding:${i ? '12px' : '0'} 0 0;color:${TEXT};font-family:${FONT};font-size:15px;font-weight:600;vertical-align:top;">${value}</td>
+      </tr>`)
     .join('');
+  return panel(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${html}</table>`);
+}
 
-  const messageHtml = message
-    ? `
+/** Soft-blue rounded chips. */
+function pills(items) {
+  return items
+    .map(t => `<span style="display:inline-block;background:${BLUE_SOFT};color:${BLUE};font-family:${FONT};font-size:13px;font-weight:700;padding:7px 14px;border-radius:999px;margin:0 6px 8px 0;">${esc(t)}</span>`)
+    .join('');
+}
+
+/** Checkmark list. */
+function checklist(items) {
+  const rows = items
+    .map(t => `
       <tr>
-        <td style="padding:28px 0 0;">
-          <p style="margin:0 0 10px;color:${FAINT};font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">${esc(messageLabel)}</p>
-          <div style="background:${PAPER};border-left:3px solid ${INK};padding:18px 20px;color:${INK};font-size:15px;line-height:1.7;white-space:pre-wrap;">${message}</div>
+        <td style="width:28px;padding:5px 0;vertical-align:top;">
+          <div style="width:18px;height:18px;line-height:18px;border-radius:50%;background:${INK};color:#ffffff;font-size:11px;font-weight:700;text-align:center;font-family:Arial,sans-serif;">&#10003;</div>
         </td>
-      </tr>`
-    : '';
+        <td style="padding:5px 0;color:${TEXT};font-family:${FONT};font-size:15px;line-height:18px;">${esc(t)}</td>
+      </tr>`)
+    .join('');
+  return `<table role="presentation" cellpadding="0" cellspacing="0">${rows}</table>`;
+}
 
-  const ctaHtml = replyTo
-    ? `
-      <tr>
-        <td style="padding:32px 0 0;">
-          <a href="mailto:${esc(replyTo)}" style="display:inline-block;background:${INK};color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.03em;padding:14px 28px;border-radius:2px;">
-            Reply to ${replyToName ? esc(replyToName.split(' ')[0]) : 'sender'} &rarr;
-          </a>
-        </td>
-      </tr>`
-    : '';
+/** Calendar tile (MON / 19 / OCT) beside a headline and note. */
+function dateCard({ weekday, day, month, headline, note }) {
+  const tile = `
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width:76px;border-radius:12px;overflow:hidden;border:1px solid ${LINE};background:#ffffff;">
+      <tr><td style="background:${BLUE};color:#ffffff;text-align:center;font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:.12em;padding:5px 0;">${esc(weekday)}</td></tr>
+      <tr><td style="text-align:center;color:${INK};font-family:${FONT};font-size:30px;font-weight:800;line-height:1;padding:10px 0 2px;">${esc(day)}</td></tr>
+      <tr><td style="text-align:center;color:${MUTED};font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:.12em;padding:0 0 9px;">${esc(month)}</td></tr>
+    </table>`;
+  return panel(`
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="width:76px;vertical-align:middle;">${tile}</td>
+      <td style="padding-left:18px;vertical-align:middle;">
+        <p style="margin:0 0 4px;color:${INK};font-family:${FONT};font-size:19px;font-weight:800;">${headline}</p>
+        <p style="margin:0;color:${MUTED};font-family:${FONT};font-size:14px;line-height:1.5;">${note}</p>
+      </td>
+    </tr></table>`);
+}
 
+/** Their message as a quote card. `message` is already escaped. */
+function quote(message) {
+  return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};border:1px solid ${LINE};border-radius:14px;">
+      <tr><td style="padding:16px 24px 0;color:${BLUE};font-family:Georgia,serif;font-size:54px;line-height:44px;height:30px;">&ldquo;</td></tr>
+      <tr><td style="padding:0 24px 22px;color:${TEXT};font-family:${FONT};font-size:16px;line-height:1.7;white-space:pre-wrap;">${message}</td></tr>
+    </table>`;
+}
+
+/**
+ * The full email: dark hero with avatar + headline + action buttons, then sections.
+ * @param {object} o
+ * @param {string} o.preheader  Inbox preview text (plain).
+ * @param {string} o.badge      Small label top-right of the header (e.g. "Let's Talk request").
+ * @param {string} o.name       Sender's full name (for the avatar initials).
+ * @param {string} o.title      Headline (already safe HTML).
+ * @param {string} o.subtitle   One line under the headline (already safe HTML).
+ * @param {string[]} o.actions  Button HTML from button().
+ * @param {string[]} o.sections Section HTML from section().
+ * @param {string} o.replyName  First name for the footer tip.
+ */
+function layout({ preheader, badge, name, title, subtitle, actions, sections, replyName }) {
   return `<!doctype html>
 <html>
-  <body style="margin:0;padding:0;background:${PAPER};">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};padding:40px 16px;">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="color-scheme" content="light only" /></head>
+  <body style="margin:0;padding:0;background:${BG};">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(preheader)}</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG};padding:32px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#ffffff;font-family:Calibri,'Trebuchet MS',Arial,sans-serif;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 12px 40px rgba(20,20,22,.08);">
 
-            <!-- header -->
+            <!-- hero -->
             <tr>
-              <td style="background:${INK};padding:36px 40px;text-align:center;">
-                <img src="${LOGO_URL}" alt="HumanKind HR Solutions" width="170" style="display:block;margin:0 auto;width:170px;height:auto;border:0;" />
-              </td>
-            </tr>
-
-            <!-- title block -->
-            <tr>
-              <td style="padding:36px 40px 8px;border-bottom:1px solid ${LINE};">
-                <p style="margin:0 0 10px;color:${FAINT};font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;">${esc(eyebrow)}</p>
-                <h1 style="margin:0 0 ${subtitle ? '8px' : '28px'};color:${INK};font-size:24px;font-weight:800;letter-spacing:-.01em;">${esc(title)}</h1>
-                ${subtitle ? `<p style="margin:0 0 28px;color:${MUTED};font-size:14px;">${esc(subtitle)}</p>` : ''}
-              </td>
-            </tr>
-
-            <!-- content -->
-            <tr>
-              <td style="padding:32px 40px 40px;">
+              <td style="background:${INK};background-image:linear-gradient(160deg,${INK_2} 0%,${INK} 60%);padding:26px 32px 30px;">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                  ${rowsHtml}
+                  <tr>
+                    <td style="vertical-align:middle;"><img src="${LOGO_URL}" alt="HumanKind HR Solutions" width="132" style="display:block;width:132px;height:auto;border:0;" /></td>
+                    <td align="right" style="vertical-align:middle;">
+                      <span style="display:inline-block;border:1px solid rgba(255,255,255,.22);color:#C7C9CE;font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border-radius:999px;">${badge}</span>
+                    </td>
+                  </tr>
                 </table>
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                  ${messageHtml}
-                  ${ctaHtml}
+                <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:34px;">
+                  <tr>
+                    <td style="vertical-align:middle;padding-right:16px;">
+                      <div style="width:58px;height:58px;line-height:58px;border-radius:50%;background:${BLUE};color:#ffffff;text-align:center;font-family:${FONT};font-size:21px;font-weight:800;letter-spacing:.02em;">${esc(initials(name))}</div>
+                    </td>
+                    <td style="vertical-align:middle;">
+                      <h1 style="margin:0;color:#ffffff;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.01em;">${title}</h1>
+                      <p style="margin:6px 0 0;color:#A9ABB1;font-family:${FONT};font-size:14px;">${subtitle}</p>
+                    </td>
+                  </tr>
                 </table>
+                <div style="margin-top:26px;">${actions.join('')}</div>
               </td>
             </tr>
+
+            <tr><td style="height:30px;line-height:30px;font-size:0;">&nbsp;</td></tr>
+            ${sections.join('')}
 
             <!-- footer -->
             <tr>
-              <td style="padding:22px 40px;background:${PAPER};border-top:1px solid ${LINE};">
-                <p style="margin:0;color:${FAINT};font-size:11px;line-height:1.6;letter-spacing:.02em;">
-                  HUMANKIND HR SOLUTIONS &nbsp;&middot;&nbsp; Sent automatically from humankindhrsolutions.com
-                </p>
+              <td style="padding:20px 32px 24px;background:${PAPER};border-top:1px solid ${LINE};">
+                <p style="margin:0 0 4px;color:${TEXT};font-family:${FONT};font-size:14px;font-weight:700;">Just hit reply &mdash; it goes straight to ${esc(replyName)}.</p>
+                <p style="margin:0;color:${FAINT};font-family:${FONT};font-size:12px;">Sent automatically from the HumanKind HR Solutions website.</p>
               </td>
             </tr>
 
@@ -172,4 +259,6 @@ async function sendEmail({ subject, html, replyTo, replyToName }) {
   }
 }
 
-module.exports = { esc, list, buildEmail, sendEmail, TO_EMAIL };
+module.exports = {
+  esc, list, firstName, receivedAt, layout, section, button, details, pills, checklist, dateCard, quote, sendEmail, TO_EMAIL,
+};

@@ -1,6 +1,6 @@
 // Vercel serverless function — receives the Contact Us form and emails it via SendGrid.
 // Env vars required: SENDGRID_API_KEY, SENDGRID_FROM_EMAIL (see _email.js).
-const { esc, buildEmail, sendEmail } = require('./_email');
+const { esc, firstName, receivedAt, layout, section, button, details, quote, sendEmail } = require('./_email');
 const { blockSpam } = require('./_spam');
 
 module.exports = async (req, res) => {
@@ -17,24 +17,27 @@ module.exports = async (req, res) => {
 
   if (await blockSpam(req, res, { text: [name, company, message], minMs: 3000 })) return;
 
-  const html = buildEmail({
-    eyebrow: 'New submission',
-    title: 'Contact form message',
-    subtitle: 'Sent from the Contact page on humankindhrsolutions.com',
-    rows: [
-      ['Name', esc(name)],
-      ['Email', `<a href="mailto:${esc(email)}" style="color:#0B0B0C;text-decoration:underline;">${esc(email)}</a>`],
-      ['Company', company ? esc(company) : '&mdash;'],
-      ['Received', esc(new Date().toLocaleString('en-CA', { timeZone: 'America/Halifax', dateStyle: 'full', timeStyle: 'short' })) + ' (AT)'],
+  const first = firstName(name);
+  const html = layout({
+    preheader: String(message).slice(0, 140),
+    badge: 'Website message',
+    name,
+    title: `${esc(first)} sent you a message`,
+    subtitle: `${company ? esc(company) + ' &middot; ' : ''}${receivedAt()}`,
+    actions: [button(`mailto:${esc(email)}`, `Reply to ${esc(first)} &rarr;`, true)],
+    sections: [
+      section('Their message', quote(esc(message))),
+      section('Contact details', details([
+        ['Name', esc(name)],
+        ['Email', `<a href="mailto:${esc(email)}" style="color:#2D6BE0;text-decoration:none;">${esc(email)}</a>`],
+        ['Company', company ? esc(company) : ''],
+      ])),
     ],
-    message: esc(message),
-    messageLabel: 'How can we help?',
-    replyTo: email,
-    replyToName: name,
+    replyName: first,
   });
 
   const result = await sendEmail({
-    subject: `Contact form: ${name}${company ? ' — ' + company : ''}`,
+    subject: `${first} sent a message${company ? ' · ' + company : ''}`,
     html,
     replyTo: email,
     replyToName: name,
