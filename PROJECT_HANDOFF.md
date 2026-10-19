@@ -207,7 +207,7 @@ Always set **both** `--bg-pos` and `--bg-pos-m` inline on every background photo
 
 ### `contact.html`
 - Contact form (demo only — no real email)
-- Contact info: info@humankindhrs.com, +1 888-476-2673
+- Contact info: info@humankindhrsolutions.com, +1 888-476-2673
 - Social links: LinkedIn, Facebook, Instagram
 
 ### `dedicated-hr.html`, `employee-benefits.html`, `hr-systems.html`, `training-wellness.html`
@@ -327,7 +327,7 @@ The widget appears automatically above the submit buttons. Before the keys are s
 ## 11. Contact / Business Info
 
 - **Company:** HumanKind HR Solutions (formerly HRO Core Inc.)
-- **Email:** info@humankindhrs.com
+- **Email:** info@humankindhrsolutions.com
 - **Phone:** +1 888-476-2673
 - **LinkedIn:** https://www.linkedin.com/company/humankind-hr-solutions-inc
 - **Facebook:** https://www.facebook.com/hrocoreinc
